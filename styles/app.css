@@ -129,6 +129,22 @@ section h3 {
   display: block;
 }
 
+.chef-image {
+  width: 55%;
+  max-width: 520px;
+  min-width: 280px;
+  margin: 0 auto 15px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.chef-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 img {
   max-width: 100%;
   border-radius: 10px;
