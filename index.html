@@ -22,8 +22,13 @@
     />
 
     <link rel="stylesheet" href="styles/app.css" />
-
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Truculenta:opsz,wght@12..72,100..900&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
@@ -206,31 +211,35 @@
     <section id="weather">
       <h1>Weather App</h1>
 
-      <div class="weather-container">
-        <input
-          type="text"
-          id="city-input"
-          placeholder="Enter a city"
-          class="search-form-input"
-          aria-label="Enter a city name"
-        />
-
-        <button
-          class="search-form-button"
-          onclick="searchCity()"
-          aria-label="Search weather by city"
-        >
-          Search
-        </button>
-
-        <div class="weather-box">
-          <h2 id="city">Colorado Springs</h2>
-          <p id="description">Sunny</p>
-          <p class="temperature" id="temperature">72°F</p>
-          <p id="humidity">Humidity: 30%</p>
-          <p id="wind">Wind: 5 mph</p>
-        </div>
-      </div>
+      <header>
+        <form>
+          <input
+            type="search"
+            placeholder="Enter a city..."
+            required
+            class="search-form"
+          />
+          <input type="submit" value="search" class="search-button" />
+        </form>
+      </header>
+      <main>
+        <div class="app-data">
+          <div>
+            <h1 class="city-name" id="city"></h1>
+            <p>
+              <span id="time"></span> <span class="divider"> | </span>
+              <span id="description"></span>
+              <br />
+              Humidity: <strong id="humidity"></strong>
+              <span class="divider"> | </span>
+              Wind: <strong id="wind"></strong>
+            </p>
+          </div>
+          <div class="temp-container">
+            <div class="temp-icon"></div>
+            <div class="temp"></div>
+            <div class="temp-unit"></div>
+          </div>
     </section>
 
     <!-- CONTACT -->
@@ -252,5 +261,87 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let apiKey = "tfo33b89af42954f2d60430a801e1b3c";
+
+function formatDate(timestamp) {
+  // Convert UTC timestamp + timezone offset into local time
+  let date = new Date(timestamp * 1000);
+
+  let days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  let day = days[date.getDay()];
+
+  let hours = date.getHours();
+  if (hours < 10) {
+    hours = `0${hours}`;
+  }
+
+  let minutes = date.getMinutes();
+  if (minutes < 10) {
+    minutes = `0${minutes}`;
+  }
+  let ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+
+  return `${day} ${hours}:${minutes} ${ampm}`;
+  return `${day} ${hours}:${minutes}`;
+}
+
+function refreshWeather(response) {
+  let cityElement = document.querySelector("#city");
+  let timeElement = document.querySelector("#time");
+  let descriptionElement = document.querySelector("#description");
+  let humidityElement = document.querySelector("#humidity");
+  let windElement = document.querySelector("#wind");
+  let tempElement = document.querySelector(".temp");
+  let iconElement = document.querySelector(".temp-icon");
+
+  cityElement.innerHTML = response.data.city;
+  timeElement.innerHTML = formatDate(
+    response.data.time,
+    response.data.timezone
+  );
+  descriptionElement.innerHTML = response.data.condition.description;
+
+  // Replace placeholders with live humidity and wind
+  humidityElement.innerHTML = `${response.data.temperature.humidity}%`;
+  windElement.innerHTML = `${Math.round(response.data.wind.speed)} mph`;
+
+  // Update temperature
+  tempElement.innerHTML = Math.round(response.data.temperature.current);
+
+  // Update weather icon
+  iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" alt="${response.data.condition.description}" class="weather-icon" />`;
+}
+
+function searchCity(city) {
+  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=imperial`;
+  axios.get(apiUrl).then(refreshWeather);
+}
+
+function handleSearch(event) {
+  event.preventDefault();
+  let searchInput = document.querySelector(".search-form");
+  searchCity(searchInput.value);
+}
+
+// Attach event listener
+let form = document.querySelector("form");
+form.addEventListener("submit", handleSearch);
+
+// Default city on load
+searchCity("New York");
+    </script>
+    <script src="styles/exercise.js"></script>
+    <script src="styles/weather.js"></script>
   </body>
 </html>
